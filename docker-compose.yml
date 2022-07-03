@@ -1,0 +1,29 @@
+version: "3"
+services:
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: podpoint
+    networks:
+      - pod-point-net
+  api:
+    container_name: pod-point-api
+    image: "node:14"
+    working_dir: /api
+    links:
+      - db
+    volumes:
+      - ./api:/api:cached
+    networks:
+      - pod-point-net
+    ports:
+      - "8000:8000"
+      - "8002:8002"
+    command: ["npm", "run", "start", "--", "--host", "0.0.0.0"]
+networks:
+  pod-point-net:
+    driver: "bridge"

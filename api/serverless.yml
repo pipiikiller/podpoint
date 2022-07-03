@@ -1,0 +1,64 @@
+service: api
+frameworkVersion: "2"
+variablesResolutionMode: 20210326
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${opt:stage, 'api'}
+  region: eu-west-1
+  lambdaHashingVersion: "20201221"
+  environment: 
+      DB_HOST: "db"
+      PORT: 5432
+      DB_USERNAME: "postgres"
+      DB_PASSWORD: "test"
+      DATABASE_NAME: "podpoint"
+plugins:
+  - serverless-offline
+
+functions:
+  # [Lambda] List action triggered by authenticated GET request through API Gateway
+  helloWorld:
+    handler: build/handler.helloWorld
+    events:
+      - http:
+          method: GET
+          path: /
+  seed:
+    handler: build/handler.seed
+    events:
+      - http:
+          method: GET
+          path: /seed
+
+  units.index:
+    handler: build/handler.unitsIndex
+    events:
+      - http:
+          method: GET
+          path: /units
+ 
+  get-units-unitId:
+    handler: build/handler.getUnit
+    events:
+      - http:
+          method: GET
+          path: /units/{unitId}   
+          request: 
+              parameters: 
+                paths: 
+                  id: true    
+
+  post-units-unitId:
+    handler: build/handler.start
+    events:
+        - http:
+            method: POST
+            path: /units/{unitId}/charges
+  patch-units-unitId-charges-chargeId:
+    handler: build/handler.stop
+    events:
+        - http:
+            method: PATCH
+            path: /units/{unitId}/charges/{chargeId}                           
